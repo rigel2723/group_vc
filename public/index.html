@@ -1,0 +1,159 @@
+<html>
+
+<head>
+    <script lang="text/javascript" src="/socket.io/socket.io.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/simple-peer/simplepeer.min.js"></script>
+    <!-- <script src="/getscreenmedia/getscreenmedia.js"></script> -->
+    <title>Simple-Peer Group VC</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <style>
+        .select-group-li:hover {
+            z-index: 2;
+            color: #fff;
+            background-color: #007bff;
+            border-color: #007bff;
+            /* font-weight: bold; */
+            cursor: pointer;
+        }
+        #grouplist_join .list-group-item {
+            padding: 0.4rem 1.25rem!important;
+        }
+        .containers {
+            display: grid;
+            grid-gap: 5px;
+            grid-template-columns: repeat(auto-fit, 1fr);
+            grid-template-rows: repeat(auto-fit, 300px);
+        }
+        video {
+            /* -webkit-transform: scaleX(-1);
+            transform: scaleX(-1); */
+        }
+        .vid {
+            flex: 0 1 auto;
+            height: 400px;
+        }
+
+        .settings {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 2px 2px;
+            cursor: pointer;
+        }
+        #videos {
+            display: none;
+        }
+        /* *::-webkit-media-controls {
+            display: none!important;
+        } */
+        
+        /* *::-webkit-media-controls-panel {
+        display: none!important;
+        -webkit-appearance: none;
+        } */
+
+        video::-webkit-media-controls-play-button {
+            display: none!important;
+            -webkit-appearance: none;
+        }
+
+        video::-webkit-media-controls-play-button {
+            display: none!important;
+            -webkit-appearance: none !important;
+        }
+
+        video::-webkit-media-controls-volume-slider {
+            display: none!important;
+            -webkit-appearance: none !important;}
+
+        video::-webkit-media-controls-mute-button {
+            display: none!important;
+            -webkit-appearance: none !important;}
+
+        video::-webkit-media-controls-timeline {
+            display: none!important;
+            -webkit-appearance: none !important;}
+
+        video::-webkit-media-controls-current-time-display {
+            display: none!important;
+            -webkit-appearance: none !important;}
+    </style>
+</head>
+
+<body id="body">
+    <div class="container mt-4" id="roomInfo">
+        <div class="row justify-content-center">
+            <div class="col-sm-6">
+                <h1>Create Room</h1>
+                <form method="GET" action="/" id="frm_create_room">
+                    <div class="form-group">
+                      <label for="rmid">Room ID</label>
+                      <input type="number" name="room" class="form-control" id="rmid" aria-describedby="rmidHelp" min=1 placeholder="Room ID">
+                      <small id="rmidHelp" class="form-text text-muted">Specify Room ID to join/create.</small>
+                    </div>
+                    <div class="form-group">
+                      <label for="username">Username</label>
+                      <input type="text" name="username" class="form-control" id="username" placeholder="Username">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Join</button>
+                </form>
+            </div>
+            <div class="col-sm-6">
+                <h1>Select Room</h1>
+                <div class="form-group">
+                    <label for="rmid">&nbsp;</label>
+                    <ul class="list-group" id="grouplist_join">
+                        <li class="list-group-item text-center">No Room Available</li>
+                    </ul>
+                </div>
+                <!-- <button onclick="setAndroidStream()">KWA</button> -->
+                <div id="audioID" style="display: none;">
+                    <audio id="streamAudio" controls="controls" autoplay></audio>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIDEO PLAYER-->
+    <div id="videos" class="container mt-4">
+        <div class="row" id="peerVideo">
+            <div class="col-sm-6" id="myVideo">
+                <div class="card"> <!-- disablepictureinpicture-->
+                    <video id="localVideo" controls class="vid card-img-top"  controlslist="nodownload" autoplay muted></video><br />
+                    <!-- <div id="screenshot">
+                        <img src="" alt="">
+                    </div> -->
+                    <div class="card-body">
+                        <div style="display:block">
+                            <!-- <button id="switchButton" class="settings" onclick="switchMedia()">Switch Camera</button> -->
+                            <button id="muteButton" class="settings" onclick="toggleMute()">Unmuted</button>
+                            <button id="vidButton" class="settings" onclick="toggleVid()">Video Enabled</button>
+                            <button id="screenshotButton" class="settings">Screenshot</button>
+                            <button id="sharescreenButton" class="settings">Share Screen</button>
+                            <!-- <button id="fullscreen" class="settings" onclick="goFullscreen()">Fullscreen</button> -->
+                            <!-- <button id="remove_stream" class="settings" onclick="removeLocalStream()">Remove stream</button> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</body>
+<footer>
+    <script src='/js/main.js' lang="text/javascript"></script>
+    <script src='/js/create_room.js' lang="text/javascript"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+
+</footer>
+
+</html>
